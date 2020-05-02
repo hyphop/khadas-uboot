@@ -1,0 +1,6 @@
+!.gitignore
+bin
+work
+dl
+share
+!README.md
