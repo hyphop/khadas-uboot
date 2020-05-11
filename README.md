@@ -4,7 +4,8 @@ u-boot for Khadas VIM and EDGE sbc
 
 ## Features
 
-+ mainline u-boot
++ univeral series for VIM1 VIM2 VIM3 VIM3L EDGE boards
++ mainline u-boot + patches
 + suitable for SPI - SD - MMC
 + spi flash - read / write / bootup
 + usb kbd
@@ -12,11 +13,11 @@ u-boot for Khadas VIM and EDGE sbc
 + HDMI output
 + embed LOGO splash - easy customize
 + extra commands like `script` `kbi`
-+ boot seq
++ boot seq SPI => USB => SD => MMC => PXE => DHCP
 + fully stand-alone
++ auto store uboot env to first fat partition uboot.env file to booted source
 
 ## usage & install
-
 
 ```
 git clone https://github.com/hyphop/khadas-uboot
