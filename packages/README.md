@@ -1,6 +1,9 @@
 # khadas fenix package
 
-u-boot-mainline
++ rkbin
++ u-boot-mainline
+
+# FENIX
 
 + https://github.com/khadas/fenix
 
