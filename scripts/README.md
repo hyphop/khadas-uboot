@@ -1,3 +1,5 @@
 # scripts folder descriptions
 
-+ [make_uboot_mainline_vim2](make_uboot_mainline_vim2) - build wrapper for mailline uboot
++ [build.conf](build.conf) - download and build config
++ [download](download) - downloader
++ [make](make) - make khadas uboot script wrapper

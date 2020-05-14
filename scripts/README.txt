@@ -1,4 +1,5 @@
 # scripts folder descriptions
 
-+ make  - build / make wrapper
-+ download 
++ build.conf               - download and build config
++ download                 - downloader
++ make                     - make khadas uboot script wrapper
