@@ -80,9 +80,14 @@ export CROSS_COMPILE=aarch64-none-linux-gnu-
 
 ${CROSS_COMPILE}gcc --version || FAIL gcc
 
-
-DEF_CONFIG=khadas-edge-captain-rk3399_defconfig
+[ "$DEF_CONFIG" ] || DEF_CONFIG=$DEF_CONFIG2
 #khadas-vim_defconfig
 
+[ "$#" = 0 ] && {
+echo "[i] DEFCONFIG $DEF_CONFIG"
 make -C"$BS" $DEF_CONFIG
-make -C"$BS" -j8 $@
+}
+
+echo "[i] make ($PJ) $@"
+
+make -C"$BS" $PJ $@
