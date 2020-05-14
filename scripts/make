@@ -1,0 +1,88 @@
+#!/bin/sh
+
+## hyphop ##
+
+#= make khadas uboot script wrapper
+
+PR=$(dirname $0)
+RP=$(realpath $PR)
+
+cd "$PR"
+
+FAIL(){
+    echo "[e] $@">&2
+    exit 1
+}
+
+echo "[i] make khadas uboot"
+
+. ./build.conf
+
+[ -d $DOWNLOADS ] || \
+    mkdir $DOWNLOADS
+
+./download \
+    $DLBASE/$GCCZ \
+    $GCCZ \
+    $DOWNLOADS || FAIL download gcc
+
+./download \
+    $DLBASE/$FIPZ \
+    $FIPZ \
+    $DOWNLOADS || FAIL download fip
+
+PKD=../packages/u-boot-mainline
+PKG=$PKD/package.mk
+
+echo "[i] build $PKG"
+
+. $PKG
+
+#PKG_SOURCE_DIR=u-boot-$PKG_VERSION
+#PKG_SOURCE_NAME=u-boot-$PKG_VERSION.tar.gz
+#PKG_SITE=https://github.com/u-boot/u-boot
+
+./download \
+    $PKG_URL \
+    $PKG_SOURCE_NAME \
+    $DOWNLOADS || FAIL download uboot source
+
+[ -d "$BUILD" ] || mkdir -p "$BUILD"
+
+BS="$BUILD/$PKG_SOURCE_DIR"
+
+[ -s "$BS" ] || { echo "[i] EXTRACT ... $BS"
+tar -xf"$(realpath "$DOWNLOADS/$PKG_SOURCE_NAME")" -C"$BUILD" --one-top-level="$PKG_SOURCE_DIR"
+}
+[ -s "$BUILD/$FIP" ] || { echo "[i] EXTRACT ... $FIP"
+tar -xf"$(realpath "$DOWNLOADS/$FIPZ")"            -C"$BUILD" --one-top-level="$FIP"
+}
+[ -s "$BUILD/$GCC" ] || { echo "[i] EXTRACT ... $GCC"
+tar -xf"$(realpath "$DOWNLOADS/$GCCZ")"            -C"$BUILD" --one-top-level="$GCC"
+}
+[ -e "$BS/.ready.log" ] || {
+
+for P in $PKD/patches/$PKG_VERSION/*.patch; do
+    [ -f "$P" ] && {
+	PN=$(basename $P)
+	echo "[i] PATCH $PN"
+	patch -p1 -d"$BS" < $P || FAIL
+    }
+done
+
+echo READY > "$BS/.ready.log"
+
+}
+
+export PATH="$(realpath "$BUILD/$GCC")/bin:$PATH"
+export ARCH=arm64
+export CROSS_COMPILE=aarch64-none-linux-gnu-
+
+${CROSS_COMPILE}gcc --version || FAIL gcc
+
+
+DEF_CONFIG=khadas-edge-captain-rk3399_defconfig
+#khadas-vim_defconfig
+
+make -C"$BS" $DEF_CONFIG
+make -C"$BS" -j8 $@

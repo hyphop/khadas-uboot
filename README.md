@@ -25,6 +25,14 @@ cd khadas-uboot
 scripts/make
 
 ```
+
+or
+
+```
+scripts/make [ARGS]
+
+```
+
 ## scripts
 
 + [scripts](scripts)
