@@ -9,6 +9,13 @@ RP=$(realpath $PR)
 
 cd "$PR"
 
+MSG(){
+    echo "[i] $@"
+}
+
+info_msg(){
+    echo "[i] $@"
+}
 
 CMD(){
     echo "[#] $@">&2
@@ -41,6 +48,10 @@ PKG="$PKD/package.mk"
 
 echo "[i] build $PKG"
 
+make_host(){
+.
+}
+
 . $PKG
 
 ./download \
@@ -59,7 +70,7 @@ PATCHING
 
 cd $BS
 
-make_host
+make_host || "[w] make_host no..."
 
 cd -
 
@@ -110,6 +121,19 @@ ${CROSS_COMPILE}gcc --version || FAIL gcc
 [ "$DEF_CONFIG" ] || DEF_CONFIG=$DEF_CONFIG2
 #khadas-vim_defconfig
 
+case $DEF_CONFIG in
+    *edge*|*rk*)
+
+    VENDOR=Rockchip
+    . $PKD/Edge.conf || FAIL
+    ;;
+    *)
+    VENDOR=Amlogic
+    ;;
+esac
+
+echo "[i] VENDOR $VENDOR ($DEF_CONFIG)"
+
 [ "$#" = 0 ] && {
 echo "[i] DEFCONFIG $DEF_CONFIG"
 make -C"$BS" $DEF_CONFIG
@@ -118,3 +142,18 @@ make -C"$BS" $DEF_CONFIG
 echo "[i] make ($PJ) $@"
 
 make -C"$BS" $PJ $@
+
+[ "$1" = clean ] && exit 0
+
+#exit 0
+
+PKGS_DIR=$(realpath "$PKGS_DIR0")
+
+
+(
+cd "$BS"
+UBOOT_DIR="$PWD"
+post_make_target
+)
+
+

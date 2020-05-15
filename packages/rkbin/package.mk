@@ -12,6 +12,7 @@ PKG_NEED_BUILD="NO"
 
 
 make_host() {
+	echo "$0 make_host"
 	chmod +x firmware_merger
 	# Fixup links
 	ln -fs bin/rk33/rk3399_ddr_800MHz_v1.24.bin rk3399_ddr.bin
