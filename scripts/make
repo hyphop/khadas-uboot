@@ -76,6 +76,21 @@ cd -
 
 }
 
+generate_sd_mmc_image(){
+
+[ -f $UBOOT_SD_MMC ] && \
+    rm $UBOOT_SD_MMC
+
+dd if=/dev/null bs=1M count=1 seek=1 of=$UBOOT_SD_MMC
+
+write_uboot_platform "$BS" "$UBOOT_SD_MMC"
+
+ls -1l $UBOOT_SD_MMC
+}
+
+#################################
+## BEGIN
+##
 
 echo "[i] make khadas uboot"
 
@@ -145,10 +160,7 @@ make -C"$BS" $PJ $@
 
 [ "$1" = clean ] && exit 0
 
-#exit 0
-
 PKGS_DIR=$(realpath "$PKGS_DIR0")
-
 
 (
 cd "$BS"
@@ -156,4 +168,6 @@ UBOOT_DIR="$PWD"
 post_make_target
 )
 
+
+generate_sd_mmc_image
 
