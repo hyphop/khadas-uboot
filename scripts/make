@@ -7,7 +7,7 @@
 PR=$(dirname $0)
 RP=$(realpath $PR)
 
-cd "$PR"
+cd "$PR" || exit 1
 
 MSG(){
     echo "[i] $@"
@@ -81,7 +81,7 @@ generate_sd_mmc_image(){
 [ -f $UBOOT_SD_MMC ] && \
     rm $UBOOT_SD_MMC
 
-dd if=/dev/null bs=1M count=1 seek=1 of=$UBOOT_SD_MMC
+dd if=/dev/null bs=1M count=1 seek=1 of=$UBOOT_SD_MMC 2>/dev/null
 
 write_uboot_platform "$BS" "$UBOOT_SD_MMC"
 
@@ -119,6 +119,12 @@ ln -sf $GCC $BUILD/gcc
 
 [ -s "$BUILD/$FIP" ] || { echo "[i] EXTRACT ... $FIP"
 tar -xf"$(realpath "$DOWNLOADS/$FIPZ")"        -C"$BUILD" --one-top-level="$FIP" || FAIL
+}
+
+[ "$1" = re ] && {
+    MSG REBUILD UBOOT
+    rm -rf $BUILD/u-boot-*
+    shift
 }
 
 for P in rkbin u-boot-mainline; do
@@ -167,7 +173,6 @@ cd "$BS"
 UBOOT_DIR="$PWD"
 post_make_target
 )
-
 
 generate_sd_mmc_image
 

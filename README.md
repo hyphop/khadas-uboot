@@ -31,6 +31,9 @@ or
 ```
 scripts/make [ARGS]
 
+scripts/make re     # remove builded source = prepare for full rebuild
+scripts/make clean  # clean
+
 ```
 
 ## scripts
