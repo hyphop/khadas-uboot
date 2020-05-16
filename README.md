@@ -13,7 +13,7 @@ u-boot for Khadas VIM and EDGE sbc
 + HDMI output
 + embed LOGO splash - easy customize
 + extra commands like `script` `kbi`
-+ boot seq SPI => USB => SD => MMC => PXE => DHCP
++ boot seq SPI => USB => SD => NVME => MMC => PXE => DHCP
 + fully stand-alone
 + auto store uboot env to first fat partition uboot.env file to booted source
 
@@ -35,6 +35,20 @@ scripts/make re     # remove builded source = prepare for full rebuild
 scripts/make clean  # clean
 
 ```
+VIMx status
+=============
+
++ all problem fixed
+
+EDGE status
+=============
+
++ hdmi FULLHD ok
++ hdmi 4K fixed force fullhd
++ usb keyboard
++ network dhcp tftp
++ usb partialy WORKS
++ in testing stage
 
 ## scripts
 
