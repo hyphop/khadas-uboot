@@ -20,12 +20,13 @@ make_target() {
 
 post_make_target() {
 
-	# add embed uboot khadas logo
-	cat u-boot-nodtb.bin u-boot.dtb "$PKGS_DIR/$PKG_NAME/files/splash.bmp.gz" > u-boot.bin
 
 	case "$VENDOR" in 
 
 		Amlogic)
+
+		# add embed uboot khadas logo
+		cat u-boot-nodtb.bin u-boot.dtb "$PKGS_DIR/$PKG_NAME/files/splash.bmp.gz" > u-boot.bin
 
 		# Add firmware
 		rm -rf "$BUILD/$PKG_NAME-$PKG_VERSION/fip"
@@ -76,8 +77,18 @@ post_make_target() {
 			esac
 		;;
 		Rockchip)
+
+		# add embed uboot khadas logo
+#		cat u-boot.dtb "$PKGS_DIR/$PKG_NAME/files/splash.bmp.gz" > u-boot.dtb.logo
+
+#		dtc u-boot.its > uboot.img
+#		sed  s/arch\\/arm\\/dts\\/rk3399-khadas-edge-v.dtb/u-boot.dtb.logo/g \
+#		    u-boot.its | dtc > uboot.img
+		cp u-boot.itb uboot.img
+
+		dd if=/dev/zero bs=4M count=1 of=trust.img
 #		if [[ $(type -t uboot_custom_postprocess) == function ]]; then
-			uboot_custom_postprocess
+#			uboot_custom_postprocess
 #		fi
 		;;
 	esac

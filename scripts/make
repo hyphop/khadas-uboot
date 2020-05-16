@@ -83,10 +83,11 @@ generate_sd_mmc_image(){
 
 dd if=/dev/null bs=1M count=1 seek=1 of=$UBOOT_SD_MMC 2>/dev/null
 
-write_uboot_platform "$BS" "$UBOOT_SD_MMC"
+write_uboot_platform$1 "$BS" "$UBOOT_SD_MMC"
 
 ls -1l $UBOOT_SD_MMC
 }
+
 
 #################################
 ## BEGIN
@@ -127,7 +128,8 @@ tar -xf"$(realpath "$DOWNLOADS/$FIPZ")"        -C"$BUILD" --one-top-level="$FIP"
     shift
 }
 
-for P in rkbin u-boot-mainline; do
+#for P in rkbin u-boot-mainline; do
+for P in u-boot-mainline; do
     PKD=../packages/$P
     BUILD_PKG
 done
@@ -162,6 +164,12 @@ make -C"$BS" $DEF_CONFIG
 
 echo "[i] make ($PJ) $@"
 
+    grep -q logo $BS/arch/arm/dts/rk3399-khadas-edge.dtsi 2>/dev/null || {
+    echo "[i] inject logo to dtb"
+    export LOGO_PATH=$(realpath $PKD/files/splash.bmp.gz)
+    sh $PKD/files/u-boot.logo.tpl >> $BS/arch/arm/dts/rk3399-khadas-edge.dtsi
+    }
+
 make -C"$BS" $PJ $@
 
 [ "$1" = clean ] && exit 0
@@ -174,5 +182,15 @@ UBOOT_DIR="$PWD"
 post_make_target
 )
 
-generate_sd_mmc_image
+echo "[i] READY"
+(
+cd "$BS"
+ls -l1 u-boot.itb 
+)
+
+generate_sd_mmc_image 2
+
+[ -b "/dev/sdc" ] && \
+which image2sd.sh && \
+    image2sd.sh $UBOOT_SD_MMC -a
 

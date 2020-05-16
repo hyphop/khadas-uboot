@@ -15,7 +15,7 @@ diff --git a/common/board_r.c b/common/board_r.c
 index bedc2b59..f0b23738 100644
 --- a/common/board_r.c
 +++ b/common/board_r.c
-@@ -481,8 +481,11 @@ static int initr_env(void)
+@@ -481,8 +481,12 @@ static int initr_env(void)
  	else
  		env_set_default(NULL, 0);
  #ifdef CONFIG_OF_CONTROL
@@ -25,6 +25,7 @@ index bedc2b59..f0b23738 100644
 +	env_set_hex("fdtcontroladdr", fdt_begin );
 +	ulong fdt_size = (unsigned long)fdt_totalsize(gd->fdt_blob);
 +//	printf("FDT SIZE: %lu\n", fdt_size);
++	env_set_hex("fdt_size", fdt_size );
 +	env_set_hex("fdtcontroladdr_end", fdt_begin + fdt_size );
  #endif
  
