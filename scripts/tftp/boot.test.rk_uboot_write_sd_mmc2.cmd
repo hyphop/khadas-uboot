@@ -20,23 +20,37 @@ echo "====================================="
 echo "BOARD: $BOARD"
 echo "====================================="
 
-UBOOT=u-boot.sd.mmc.bin
+UBOOT=u-boot.itb
+UBOOT_LOADER=idbloader.img
 
 echo "uboot test UPDATE by write to sd <= $UBOOT"
 
 setenv LOADADDR 0x40000000
 
-mmc dev 1 # sd
-#mmc dev 0 # mmc
+#mmc dev 1 # sd
+mmc dev 0 # mmc
 
 if dhcp $LOADADDR $loadhost2$UBOOT ; then
 
  echo "SD UPDATE"
  echo CHECK $UBOOT $filesize
  md5sum $LOADADDR $filesize
- #                        
- echo mmc write $LOADADDR 40 b00
- mmc write $LOADADDR 40 b00
+ #                        16384 2048
+ echo mmc write $LOADADDR 4000 800
+ mmc write $LOADADDR 4000 800
+
+fi
+
+echo "uboot test UPDATE by write to sd <= $UBOOT_LOADER"
+
+if dhcp $LOADADDR $loadhost2$UBOOT_LOADER ; then
+
+ echo "SD UPDATE"
+ echo CHECK $UBOOT_LOADER $filesize
+ md5sum $LOADADDR $filesize
+ #                        16384 2048
+ echo mmc write $LOADADDR 40 200
+ mmc write $LOADADDR 40 200
 
 fi
 
