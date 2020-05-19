@@ -20,5 +20,7 @@ make_target() {
     export PATH="$UBOOT_COMPILER_PATH:$PATH"
 #    make distclean
     make -j$NR_JOBS CROSS_COMPILE=${UBOOT_COMPILER} PLAT=rk3399 bl31
+    make -j$NR_JOBS CROSS_COMPILE=${UBOOT_COMPILER} PLAT=rk3399 
+#bl32
 }
 

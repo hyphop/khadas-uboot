@@ -25,7 +25,7 @@ index 89a8a44b..b5cdf30a 100644
 +#define STDOUT_CFG "vidconsole,serial"
 +#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE 8192000
 +#define CONFIG_VIDEO_BMP_GZIP 1
-+#define CONSOLE_FONT_COLOR 14
++#define CONSOLE_FONT_COLOR 15
 +#endif
 +
 +#define PREBOOT_LOAD_LOGO \

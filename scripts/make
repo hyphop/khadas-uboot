@@ -96,6 +96,7 @@ dd if=/dev/null bs=1M count=1 seek=1 of=$UBOOT_SD_MMC 2>/dev/null
 
 write_uboot_platform$1 "$BS" "$UBOOT_SD_MMC"
 
+
 ls -1l $UBOOT_SD_MMC
 }
 
@@ -141,15 +142,15 @@ tar -xf"$(realpath "$DOWNLOADS/$FIPZ")"        -C"$BUILD" --one-top-level="$FIP"
 
 
 export UBOOT_COMPILER_PATH=$(realpath "$BUILD/gcc")/bin
-export PATH="$UBOOT_COMPILER_PATH:$PATH"
+export PATH="$EXTRA_PATH:$UBOOT_COMPILER_PATH:$PATH"
 export ARCH=arm64
 export CROSS_COMPILE=aarch64-none-linux-gnu-
 export UBOOT_COMPILER=$CROSS_COMPILE
 
 ${CROSS_COMPILE}gcc --version || FAIL gcc
 
-for P in rkbin u-boot-mainline; do
-#for P in arm-trusted-firmware u-boot-mainline; do
+#for P in rkbin u-boot-mainline; do
+for P in rkbin arm-trusted-firmware u-boot-mainline; do
 #for P in arm-trusted-firmware; do
     PKD=../packages/$P
     BUILD_PKG $P
@@ -185,11 +186,16 @@ echo "[i] make ($PJ) $@"
     sh $PKD/files/u-boot.logo.tpl >> $BS/arch/arm/dts/rk3399-khadas-edge.dtsi
     }
 
+
+export BL31=$(realpath "$BUILD/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf")
+[ -f "$BL31" ] || \
 export BL31=$(realpath "$BUILD/rkbin/bin/rk33/rk3399_bl31_v1.31.elf")
+
+[ -f "$BL31" ] || FAIL bl31 missed
 
 echo "BL31 == $BL31"
 
-make -C"$BS" $PJ $@
+make -C"$BS" $PJ $@ || FAIL make fail
 
 [ "$1" = clean ] && exit 0
 
@@ -207,9 +213,51 @@ cd "$BS"
 ls -l1 u-boot.itb 
 )
 
-generate_sd_mmc_image 2
+#generate_sd_mmc_image 2
 
-[ -b "/dev/sdc" ] && \
-which image2sd.sh && \
-    image2sd.sh $UBOOT_SD_MMC -a
+[ -d "$BS/tpl" ] && {
+echo "[i] TPL+SPL SPI"
+$BS/tools/mkimage -n rk3399 -T rkspi -d $BS/tpl/u-boot-tpl-dtb.bin $UBOOT_SPI
+cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SPI
+ls -l1 $UBOOT_SPI
+truncate -s $((0x40000-0)) $UBOOT_SPI
+ls -l1 $UBOOT_SPI
+cat $BS/u-boot.itb >> $UBOOT_SPI
+gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
+}
+
+[ -d "$BS/tpl" ] || {
+echo "[i] SPL SPI"
+$BS/tools/mkimage -n rk3399 -T rkspi -d $BS/spl/u-boot-spl-dtb.bin $UBOOT_SPI
+ls -l1 $UBOOT_SPI
+truncate -s $((0x40000-0)) $UBOOT_SPI
+ls -l1 $UBOOT_SPI
+cat $BS/u-boot.itb >> $UBOOT_SPI
+gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
+}
+
+[ -d "$BS/tpl" ] && {
+echo "[i] TPL+SPL SD"
+$BS/tools/mkimage -n rk3399 -T rksd -d $BS/tpl/u-boot-tpl-dtb.bin  $UBOOT_SD_MMC || DIE
+ls -l1 $UBOOT_SD_MMC
+cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SD_MMC
+ls -l1 $UBOOT_SD_MMC
+truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
+cat $BS/u-boot.itb >> $UBOOT_SD_MMC
+gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
+}
+
+[ -d "$BS/tpl" ] || {
+echo "[i] SPL SD"
+$BS/tools/mkimage -n rk3399 -T rksd -d $BS/spl/u-boot-spl-dtb.bin  $UBOOT_SD_MMC || DIE
+ls -l1 $UBOOT_SD_MMC
+truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
+ls -l1 $UBOOT_SD_MMC
+cat $BS/u-boot.itb >> $UBOOT_SD_MMC
+gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
+}
+
+#[ -b "/dev/sdc" ] && \
+#which image2sd.sh && \
+#    image2sd.sh $UBOOT_SD_MMC -a
 

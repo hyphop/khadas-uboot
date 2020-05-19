@@ -26,12 +26,15 @@ EDGE status
 =============
 
 + hdmi FULLHD ok
-+ hdmi 4K broken
++ hdmi 4K fixed
++ splash logo
++ spi flash
++ SPL boot (TPL removed)
++ boot from SPI + MMC + SD
++ compact size - uboot single files for SD and SPI
++ ATF bl31
 + usb keyboard
 + network
 + usb partialy WORKS
-+ 0022-reserve-memory-for-BL32.patch - this patch broke normal uboot behaviour 
-    for $loadaddr usage for many commands
-    becouse not possible to write into $loadaddr - its reserved
-    *** trying to overwrite reserved memory... *** 
 + in testing stage
++ NVME in progress
