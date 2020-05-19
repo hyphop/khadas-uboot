@@ -44,11 +44,18 @@ EDGE status
 =============
 
 + hdmi FULLHD ok
-+ hdmi 4K fixed force fullhd
++ hdmi 4K fixed
++ splash logo
++ spi flash
++ SPL boot (TPL removed)
++ boot from SPI + MMC + SD
++ compact size - uboot single files for SD and SPI
++ ATF bl31
 + usb keyboard
-+ network dhcp tftp
++ network
 + usb partialy WORKS
 + in testing stage
++ NVME in progress
 
 ## scripts
 
