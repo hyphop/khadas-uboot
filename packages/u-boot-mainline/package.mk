@@ -1,18 +1,71 @@
-PKG_NAME=u-boot-mainline
-PKG_VERSION=caad316b3165615f1a4848901811a4a084444c9d
-PKG_SOURCE_DIR=u-boot-$PKG_VERSION
-PKG_SOURCE_NAME=u-boot-$PKG_VERSION.tar.gz
-PKG_SITE=https://github.com/u-boot/u-boot
-PKG_URL=$PKG_SITE/archive/$PKG_VERSION.tar.gz
-PKG_SHA256=87006eb9e3b070894db2f61b01727c1d5abc7d20f9b5db9e2db1d079474afad1
+#!/bin/bash
+
+PKG_NAME="u-boot-mainline"
+PKG_VERSION="caad316b3165615f1a4848901811a4a084444c9d"
+PKG_SOURCE_DIR="u-boot-$PKG_VERSION"
+PKG_SOURCE_NAME="u-boot-$PKG_VERSION.tar.gz"
+PKG_SITE="https://github.com/u-boot/u-boot"
+PKG_URL="$PKG_SITE/archive/$PKG_VERSION.tar.gz"
+PKG_SHA256="87006eb9e3b070894db2f61b01727c1d5abc7d20f9b5db9e2db1d079474afad1"
 PKG_SHORTDESC="u-boot: Universal Bootloader project"
 PKG_ARCH="arm aarch64"
 PKG_LICENSE="GPL"
 PKG_NEED_BUILD="YES"
 
+make_target_deps(){
+
+	[ -d "$BUILD/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf" ] || {
+	    (
+	    rm -rf "$BUILD/.stamps/arm-trusted-firmware" 1>/dev/null 2>/dev/null
+	    build_package arm-trusted-firmware 
+	    )
+	}
+
+	[ "$VENDOR" = "Rockchip" ] && {
+
+	    # get ATF
+
+#	    [ -s "$BL31" ] || \
+#		BL31=bl31.elf
+	    [ -s "$BL31" ] || \
+		BL31="../arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf"
+	    [ -s "$BL31" ] || \
+		BL31="../rkbin/bin/rk33/rk3399_bl31_v1.31.elf"
+	    [ -s "$BL31" ] || \
+    		BL31=../atf-rk3399/bl31.elf
+	    [ -s "$BL31" ] || {
+		curl -jkL https://github.com/hyphop/khadas-uboot/releases/download/tc/atf-rk3399.tar.gz | \
+		tar -xzf- -C.. && \
+    		    BL31=../atf-rk3399/bl31.elf
+	    }
+	    [ -s "$BL31" ] || {
+		BL31=
+		echo "[i] BL31 (null)"
+		export BL31=
+	    }
+	    [ -s "$BL31" ] && {
+	    export BL31=$(realpath "$BL31")
+	    echo "[i] BL31 $BL31"
+	    }
+
+	    # add embed uboot khadas logo
+	    grep -q logo arch/arm/dts/rk3399-khadas-edge.dtsi 2>/dev/null || {
+		export LOGO_PATH=$(realpath "$PKGS_DIR/$PKG_NAME/files/splash.bmp.gz")
+		ls -l1 $LOGO_PATH
+		echo "[i] inject logo to dtb $LOGO_PATH"
+		sh $PKGS_DIR/$PKG_NAME/files/u-boot.logo.tpl >> arch/arm/dts/rk3399-khadas-edge.dtsi
+	    }
+
+	}
+
+}
+
 make_target() {
 
-	export PATH=$UBOOT_COMPILER_PATH:$PATH
+	export PATH="$UBOOT_COMPILER_PATH:$PATH"
+
+	make_target_deps
+
 	make distclean
 	make -j${NR_JOBS} CROSS_COMPILE=${UBOOT_COMPILER} ${UBOOT_DEFCONFIG} all
 
@@ -78,18 +131,58 @@ post_make_target() {
 		;;
 		Rockchip)
 
-		# add embed uboot khadas logo
-#		cat u-boot.dtb "$PKGS_DIR/$PKG_NAME/files/splash.bmp.gz" > u-boot.dtb.logo
+BS=.
+UBOOT_SD_MMC=u-boot.mmc.bin
+UBOOT_SD_MMC0=u-boot.mmc.0.bin
+UBOOT_SPI=u-boot.spi.bin
 
-#		dtc u-boot.its > uboot.img
-#		sed  s/arch\\/arm\\/dts\\/rk3399-khadas-edge-v.dtb/u-boot.dtb.logo/g \
-#		    u-boot.its | dtc > uboot.img
-		cp u-boot.itb uboot.img
+[ -d "$BS/tpl" ] && {
+echo "[i] TPL+SPL SPI"
+$BS/tools/mkimage -n rk3399 -T rkspi -d $BS/tpl/u-boot-tpl-dtb.bin $UBOOT_SPI
+cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SPI
+ls -l1 $UBOOT_SPI
+truncate -s $((0x40000-0)) $UBOOT_SPI
+cat $BS/u-boot.itb >> $UBOOT_SPI
+gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
+ls -l1 $UBOOT_SPI*
+}
 
-		dd if=/dev/zero bs=4M count=1 of=trust.img
-#		if [[ $(type -t uboot_custom_postprocess) == function ]]; then
-#			uboot_custom_postprocess
-#		fi
+[ -d "$BS/tpl" ] || {
+echo "[i] SPL SPI"
+$BS/tools/mkimage -n rk3399 -T rkspi -d $BS/spl/u-boot-spl-dtb.bin $UBOOT_SPI
+ls -l1 $UBOOT_SPI
+truncate -s $((0x40000-0)) $UBOOT_SPI
+cat $BS/u-boot.itb >> $UBOOT_SPI
+gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
+ls -l1 $UBOOT_SPI*
+}
+
+[ -d "$BS/tpl" ] && {
+echo "[i] TPL+SPL SD"
+$BS/tools/mkimage -n rk3399 -T rksd -d $BS/tpl/u-boot-tpl-dtb.bin  $UBOOT_SD_MMC || DIE
+ls -l1 $UBOOT_SD_MMC
+cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SD_MMC
+truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
+cat $BS/u-boot.itb >> $UBOOT_SD_MMC
+gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
+dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0 1>/dev/null 2>/dev/null
+cat $UBOOT_SD_MMC >> $UBOOT_SD_MMC0
+ls -l1 $UBOOT_SD_MMC*
+
+}
+
+[ -d "$BS/tpl" ] || {
+echo "[i] SPL SD"
+$BS/tools/mkimage -n rk3399 -T rksd -d $BS/spl/u-boot-spl-dtb.bin  $UBOOT_SD_MMC || DIE
+ls -l1 $UBOOT_SD_MMC
+truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
+cat $BS/u-boot.itb >> $UBOOT_SD_MMC
+gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
+dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0 1>/dev/null 2>/dev/null
+cat $UBOOT_SD_MMC >> $UBOOT_SD_MMC0
+ls -l1 $UBOOT_SD_MMC*
+}
+
 		;;
 	esac
 }
@@ -105,9 +198,9 @@ makeinstall_target() {
 		cp fip/u-boot.bin.sd.bin $BUILD_IMAGES/$PKG_NAME/$KHADAS_BOARD
 		;;
 		Rockchip)
-		cp idbloader.img $BUILD_IMAGES/$PKG_NAME/$KHADAS_BOARD
-		cp uboot.img $BUILD_IMAGES/$PKG_NAME/$KHADAS_BOARD
-		cp trust.img $BUILD_IMAGES/$PKG_NAME/$KHADAS_BOARD
+#		cp idbloader.img $BUILD_IMAGES/$PKG_NAME/$KHADAS_BOARD
+#		cp uboot.img $BUILD_IMAGES/$PKG_NAME/$KHADAS_BOARD
+#		cp trust.img $BUILD_IMAGES/$PKG_NAME/$KHADAS_BOARD
 		;;
 	esac
 }

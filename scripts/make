@@ -56,6 +56,10 @@ make_target(){
 .
 }
 
+make_target_deps(){
+.
+}
+
 post_make_target(){
 .
 }
@@ -87,20 +91,6 @@ cd -
 
 }
 
-generate_sd_mmc_image(){
-
-[ -f $UBOOT_SD_MMC ] && \
-    rm $UBOOT_SD_MMC
-
-dd if=/dev/null bs=1M count=1 seek=1 of=$UBOOT_SD_MMC 2>/dev/null
-
-write_uboot_platform$1 "$BS" "$UBOOT_SD_MMC"
-
-
-ls -1l $UBOOT_SD_MMC
-}
-
-
 #################################
 ## BEGIN
 ##
@@ -125,6 +115,7 @@ tar -xf"$(realpath "$DOWNLOADS/$GCCZ")"        -C"$BUILD" --one-top-level="$GCC"
 ln -sf $GCC $BUILD/gcc
 }
 
+[ "$ATF_BUILD" ] && {
 ./download \
     $DLBASE/$GCCZN \
     $GCCZN \
@@ -133,6 +124,7 @@ ln -sf $GCC $BUILD/gcc
 [ -s "$BUILD/$GCCN" ] || { echo "[i] EXTRACT ... $GCCN"
 tar -xf"$(realpath "$DOWNLOADS/$GCCZN")"        -C"$BUILD" --one-top-level="$GCCN" || FAIL 
 ln -sf $GCCN $BUILD/gcc-none-eabi
+}
 }
 
 ./download \
@@ -157,124 +149,63 @@ export CROSS_COMPILE=aarch64-none-linux-gnu-
 export UBOOT_COMPILER=$CROSS_COMPILE
 
 ${CROSS_COMPILE}gcc --version || FAIL gcc
-arm-none-eabi-gcc --version || FAIL $PATH gcc-none-eabi
 
-#for P in rkbin arm-trusted-firmware u-boot-mainline; do
-for P in arm-trusted-firmware u-boot-mainline; do
+#arm-none-eabi-gcc --version || FAIL $PATH gcc-none-eabi
+
+PKGS=u-boot-mainline
+
+[ "$ATF_BUILD" ] && PKGS="arm-trusted-firmware $PKGS"
+
+for P in $PKGS; do
     PKD=../packages/$P
     BUILD_PKG $P
 done
 
 [ "$DEF_CONFIG" ] || DEF_CONFIG=$DEF_CONFIG2
-#khadas-vim_defconfig
 
 case $DEF_CONFIG in
     *edge*|*rk*)
-
     VENDOR=Rockchip
-    . $PKD/Edge.conf || FAIL
     ;;
     *)
     VENDOR=Amlogic
     ;;
 esac
 
+export UBOOT_DEFCONFIG=$DEF_CONFIG
+
 echo "[i] VENDOR $VENDOR ($DEF_CONFIG)"
 
-[ "$#" = 0 ] && {
-echo "[i] DEFCONFIG $DEF_CONFIG"
-make -C"$BS" $DEF_CONFIG
+PKGS_DIR=$(realpath "$PKGS_DIR0")
+
+MANUAL=1
+
+[ "$1" = re ] && {
+    MSG REBUILD UBOOT
+    rm -rf $BUILD/u-boot-*
+    shift
 }
 
-echo "[i] make ($PJ) $@"
+[ "$MANUAL" ] && {
+echo "[i] manual build"
 
-    grep -q logo $BS/arch/arm/dts/rk3399-khadas-edge.dtsi 2>/dev/null || {
-    echo "[i] inject logo to dtb"
-    export LOGO_PATH=$(realpath $PKD/files/splash.bmp.gz)
-    sh $PKD/files/u-boot.logo.tpl >> $BS/arch/arm/dts/rk3399-khadas-edge.dtsi
-    }
+cd "$BS"
+UBOOT_DIR="$PWD"
+make_target_deps
+cd -
 
-
-export BL31=$(realpath "$BUILD/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf")
-[ -f "$BL31" ] || \
-export BL31=$(realpath "$BUILD/rkbin/bin/rk33/rk3399_bl31_v1.31.elf")
-
-[ -f "$BL31" ] || FAIL bl31 missed
-
-echo "BL31 == $BL31"
-
-#export PMUM0=$(realpath "$BUILD/arm-trusted-firmware/build/rk3399/release/m0/rk3399m0.bin")
-
+[ -s "$BS/.config" ] || make -C"$BS" $DEF_CONFIG
 make -C"$BS" $PJ $@ || FAIL make fail
-
-[ "$1" = clean ] && exit 0
-
-PKGS_DIR=$(realpath "$PKGS_DIR0")
+}
 
 (
 cd "$BS"
 UBOOT_DIR="$PWD"
+[ "$MANUAL" ] || \
+make_target
 post_make_target
 )
 
-echo "[i] READY"
-(
-cd "$BS"
-ls -l1 u-boot.itb 
-)
-
-#generate_sd_mmc_image 2
-
-[ -d "$BS/tpl" ] && {
-echo "[i] TPL+SPL SPI"
-$BS/tools/mkimage -n rk3399 -T rkspi -d $BS/tpl/u-boot-tpl-dtb.bin $UBOOT_SPI
-cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SPI
-ls -l1 $UBOOT_SPI
-truncate -s $((0x40000-0)) $UBOOT_SPI
-ls -l1 $UBOOT_SPI
-cat $BS/u-boot.itb >> $UBOOT_SPI
-gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
-}
-
-[ -d "$BS/tpl" ] || {
-echo "[i] SPL SPI"
-$BS/tools/mkimage -n rk3399 -T rkspi -d $BS/spl/u-boot-spl-dtb.bin $UBOOT_SPI
-ls -l1 $UBOOT_SPI
-truncate -s $((0x40000-0)) $UBOOT_SPI
-ls -l1 $UBOOT_SPI
-cat $BS/u-boot.itb >> $UBOOT_SPI
-gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
-}
-
-[ -d "$BS/tpl" ] && {
-echo "[i] TPL+SPL SD"
-$BS/tools/mkimage -n rk3399 -T rksd -d $BS/tpl/u-boot-tpl-dtb.bin  $UBOOT_SD_MMC || DIE
-ls -l1 $UBOOT_SD_MMC
-cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SD_MMC
-ls -l1 $UBOOT_SD_MMC
-truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
-cat $BS/u-boot.itb >> $UBOOT_SD_MMC
-gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
-
-dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0
-cat $UBOOT_SD_MMC >> $UBOOT_SD_MMC0
-
-}
-
-[ -d "$BS/tpl" ] || {
-echo "[i] SPL SD"
-$BS/tools/mkimage -n rk3399 -T rksd -d $BS/spl/u-boot-spl-dtb.bin  $UBOOT_SD_MMC || DIE
-ls -l1 $UBOOT_SD_MMC
-truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
-ls -l1 $UBOOT_SD_MMC
-cat $BS/u-boot.itb >> $UBOOT_SD_MMC
-gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
-
-dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0
-cat $UBOOT_SD_MMC >> $UBOOT_SD_MMC0
-}
-
-[ -b "/dev/sdc" ] && \
-which image2sd.sh && \
-    image2sd.sh $UBOOT_SD_MMC0 -a
+cp $BS/u-boot.spi* /tmp
+cp $BS/u-boot.mmc* /tmp
 
