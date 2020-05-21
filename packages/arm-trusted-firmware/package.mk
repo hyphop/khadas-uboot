@@ -18,9 +18,7 @@ make_host() {
 make_target() {
     echo "*** $0 make_target $NR_JOBS // $UBOOT_COMPILER_PATH"
     export PATH="$UBOOT_COMPILER_PATH:$PATH"
-#    make distclean
     make -j$NR_JOBS CROSS_COMPILE=${UBOOT_COMPILER} PLAT=rk3399 bl31
-    make -j$NR_JOBS CROSS_COMPILE=${UBOOT_COMPILER} PLAT=rk3399 
-#bl32
+#   make -j$NR_JOBS CROSS_COMPILE=${UBOOT_COMPILER} PLAT=rk3399
 }
 

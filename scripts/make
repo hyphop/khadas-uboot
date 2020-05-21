@@ -126,6 +126,16 @@ ln -sf $GCC $BUILD/gcc
 }
 
 ./download \
+    $DLBASE/$GCCZN \
+    $GCCZN \
+    $DOWNLOADS || FAIL download gcc
+
+[ -s "$BUILD/$GCCN" ] || { echo "[i] EXTRACT ... $GCCN"
+tar -xf"$(realpath "$DOWNLOADS/$GCCZN")"        -C"$BUILD" --one-top-level="$GCCN" || FAIL 
+ln -sf $GCCN $BUILD/gcc-none-eabi
+}
+
+./download \
     $DLBASE/$FIPZ \
     $FIPZ \
     $DOWNLOADS || FAIL download fip
@@ -140,7 +150,6 @@ tar -xf"$(realpath "$DOWNLOADS/$FIPZ")"        -C"$BUILD" --one-top-level="$FIP"
     shift
 }
 
-
 export UBOOT_COMPILER_PATH=$(realpath "$BUILD/gcc")/bin
 export PATH="$EXTRA_PATH:$UBOOT_COMPILER_PATH:$PATH"
 export ARCH=arm64
@@ -148,14 +157,13 @@ export CROSS_COMPILE=aarch64-none-linux-gnu-
 export UBOOT_COMPILER=$CROSS_COMPILE
 
 ${CROSS_COMPILE}gcc --version || FAIL gcc
+arm-none-eabi-gcc --version || FAIL $PATH gcc-none-eabi
 
-#for P in rkbin u-boot-mainline; do
-for P in rkbin arm-trusted-firmware u-boot-mainline; do
-#for P in arm-trusted-firmware; do
+#for P in rkbin arm-trusted-firmware u-boot-mainline; do
+for P in arm-trusted-firmware u-boot-mainline; do
     PKD=../packages/$P
     BUILD_PKG $P
 done
-
 
 [ "$DEF_CONFIG" ] || DEF_CONFIG=$DEF_CONFIG2
 #khadas-vim_defconfig
@@ -194,6 +202,8 @@ export BL31=$(realpath "$BUILD/rkbin/bin/rk33/rk3399_bl31_v1.31.elf")
 [ -f "$BL31" ] || FAIL bl31 missed
 
 echo "BL31 == $BL31"
+
+#export PMUM0=$(realpath "$BUILD/arm-trusted-firmware/build/rk3399/release/m0/rk3399m0.bin")
 
 make -C"$BS" $PJ $@ || FAIL make fail
 
@@ -245,6 +255,10 @@ ls -l1 $UBOOT_SD_MMC
 truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
 cat $BS/u-boot.itb >> $UBOOT_SD_MMC
 gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
+
+dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0
+cat $UBOOT_SD_MMC >> $UBOOT_SD_MMC0
+
 }
 
 [ -d "$BS/tpl" ] || {
@@ -255,9 +269,12 @@ truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
 ls -l1 $UBOOT_SD_MMC
 cat $BS/u-boot.itb >> $UBOOT_SD_MMC
 gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
+
+dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0
+cat $UBOOT_SD_MMC >> $UBOOT_SD_MMC0
 }
 
-#[ -b "/dev/sdc" ] && \
-#which image2sd.sh && \
-#    image2sd.sh $UBOOT_SD_MMC -a
+[ -b "/dev/sdc" ] && \
+which image2sd.sh && \
+    image2sd.sh $UBOOT_SD_MMC0 -a
 

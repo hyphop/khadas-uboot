@@ -65,7 +65,7 @@ index 14b9e89e..e786ab1e 100644
 +	source = "unknown";
 +    }
 +
-+    printf("*** BOOT_SOURCE %u = %s ***\n", boot_device_id, source);
++    //printf("*** BOOT_SOURCE %u = %s ***\n", boot_device_id, source);
 +
 +    env_set("boot_source", source);
 +
