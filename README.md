@@ -4,7 +4,7 @@ mainline u-boot for Khadas VIM and EDGE sbc series
 
 ## Features
 
-+ univeral series for VIM1 VIM2 VIM3 VIM3L EDGE boards
++ universal series for VIM1 VIM2 VIM3 VIM3L EDGE boards
 + mainline u-boot + patches
 + suitable for SPI - SD - MMC
 + spi flash - read / write / bootup
