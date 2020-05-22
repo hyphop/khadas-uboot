@@ -20,8 +20,8 @@ cd $UBOOT_DIR2
 md5sum VIM* > list.md5sum
 )
 
-
-
+ls -l1 
+FEATURES="$(cat ../README.features)"
 
 (
 
@@ -30,6 +30,8 @@ echo "# VIMx (VIM1 VIM2 VIM3 VIM3L) mainline uboot images (GENERATED: $(TZ= date
 cd $UBOOT_DIR2
 
 echo "
+$FEATURES
+
 ## VIMx sd / mmc / emmc uboot
 "
 
@@ -89,7 +91,7 @@ echo "
 
 ## DOWNLOADS
 
-+ https://dl.khadas.com/Firmware/uboot/maine-line
++ https://dl.khadas.com/Firmware/uboot/main-line/
 + https://github.com/hyphop/khadas-uboot/releases/tag/last
 
 ## LINKS

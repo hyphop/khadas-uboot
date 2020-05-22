@@ -1,6 +1,6 @@
 # khadas u-boot
 
-u-boot for Khadas VIM and EDGE sbc 
+mainline u-boot for Khadas VIM and EDGE sbc series
 
 ## Features
 
@@ -11,6 +11,8 @@ u-boot for Khadas VIM and EDGE sbc
 + usb kbd
 + usb storages
 + HDMI output
++ HDMI 4K supported
++ EFI
 + embed LOGO splash - easy customize
 + extra commands like `script` `kbi`
 + boot seq SPI => USB => SD => NVME => MMC => PXE => DHCP
@@ -75,4 +77,5 @@ for spi usage u can use this link https://github.com/hyphop/khadas-rescue for bu
 + https://github.com/hyphop/khadas-openwrt
 + https://github.com/hyphop/khadas-linux-kernel
 + https://github.com/khadas/fenix
++ https://dl.khadas.com/Firmware/uboot/mainline/
 
