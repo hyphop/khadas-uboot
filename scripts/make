@@ -76,6 +76,7 @@ BS="$BUILD/$PKG_SOURCE_DIR"
 [ -s "$BS" ] || { echo "[i] EXTRACT ... $BS"
 CMD tar -xf"$(realpath "$DOWNLOADS/$PKG_SOURCE_NAME")" -C"$BUILD" --one-top-level="$PKG_SOURCE_DIR"
 CMD ln -sf "$PKG_SOURCE_DIR" "$BUILD/$PKG_NAME"
+CMD ln -sf "$PKG_SOURCE_DIR" "$BUILD/$PKG_NAME-$PKG_VERSION"
 }
 
 PATCHING
@@ -136,6 +137,7 @@ ln -sf $GCCN $BUILD/gcc-none-eabi
 tar -xf"$(realpath "$DOWNLOADS/$FIPZ")"        -C"$BUILD" --one-top-level="$FIP" || FAIL
 }
 
+
 [ "$1" = re ] && {
     MSG REBUILD UBOOT
     rm -rf $BUILD/u-boot-*
@@ -156,25 +158,26 @@ PKGS=u-boot-mainline
 
 [ "$ATF_BUILD" ] && PKGS="arm-trusted-firmware $PKGS"
 
+[ -s $BUILD/def_config ] && {
+[ "$DEF_CONFIG" ] ||  . $BUILD/def_config
+}
+[ "$DEF_CONFIG" ] || DEF_CONFIG=$DEF_CONFIG2
+[ "$DEF_CONFIG" ] && echo DEF_CONFIG=$DEF_CONFIG > $BUILD/def_config
+
+. ./make.inc
+
+echo "[i] VENDOR $VENDOR BOARD: $KHADAS_BOARD ($DEF_CONFIG)"
+
+[ "$KHADAS_BOARD" ] || FAIL board undefined
+
 for P in $PKGS; do
     PKD=../packages/$P
     BUILD_PKG $P
 done
 
-[ "$DEF_CONFIG" ] || DEF_CONFIG=$DEF_CONFIG2
-
-case $DEF_CONFIG in
-    *edge*|*rk*)
-    VENDOR=Rockchip
-    ;;
-    *)
-    VENDOR=Amlogic
-    ;;
-esac
+ln -sf $BUILD/$FIP ../packages/u-boot-mainline/fip || FAIL make symlink
 
 export UBOOT_DEFCONFIG=$DEF_CONFIG
-
-echo "[i] VENDOR $VENDOR ($DEF_CONFIG)"
 
 PKGS_DIR=$(realpath "$PKGS_DIR0")
 
@@ -206,6 +209,52 @@ make_target
 post_make_target
 )
 
-cp $BS/u-boot.spi* /tmp
-cp $BS/u-boot.mmc* /tmp
+echo "[i] $BOARD build complited"
 
+for D in $UBOOT_DIR1 $UBOOT_DIR2; do
+    [ -d "$D" ] || mkdir -p $D
+done
+
+CMP_=gz
+CMP="gzip -c9"
+
+case $VENDOR in
+    Rockchip)
+    echo "[i] $BOARD store"
+    cp $BS/u-boot.spi* $UBOOT_DIR1
+    cp $BS/u-boot.mmc* $UBOOT_DIR1
+    ;;
+
+    *)
+    echo "[i] $BOARD store"
+    cp $BS/fip/u-boot.bin		$UBOOT_DIR1/$UBOOT_SPI
+    cp $BS/fip/u-boot.bin.sd.bin	$UBOOT_DIR1/$UBOOT_SD_MMC0
+
+    [ "" ] && {
+    U="$UBOOT_DIR1/$BOARD.$UBOOT_SPI"
+    [ -e "$U" ] && rm "$U"
+    ln -sf "$BS/fip/u-boot.bin"		"$U"
+    U="$UBOOT_DIR1/$BOARD.$UBOOT_SD_MMC0"
+    [ -e "$U" ] && rm "$U"
+    ln -sf "$BS/fip/u-boot.bin.sd.bin"	"$U"
+    }
+
+    cp $BS/fip/u-boot.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SPI
+    cp $BS/fip/u-boot.bin.sd.bin	$UBOOT_DIR2/$BOARD.$UBOOT_SD_MMC0
+
+    [ "$COMPRESS" ] && {
+    for C in \
+    $UBOOT_DIR1/$BOARD.$UBOOT_SPI $UBOOT_DIR1/$BOARD.$UBOOT_SD_MMC0 \
+    $UBOOT_DIR2/$BOARD.$UBOOT_SPI $UBOOT_DIR2/$BOARD.$UBOOT_SD_MMC0 \
+    ; do
+	[ -e "$C.$CMP_" ] && rm $C.$CMP_
+	echo "$CMP $C > $C.$CMP_"
+	$CMP $C > $C.$CMP_
+    done
+    }
+    ;;
+
+esac
+
+echo "[i] $BOARD ready"
+exit 0

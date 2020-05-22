@@ -1,0 +1,39 @@
+#!/bin/sh
+
+## hyphop ##
+
+#= make all images 
+
+#khadas-edge-captain-rk3399
+#khadas-edge-rk3399
+#khadas-edge-v-rk3399
+
+PR=$(dirname $0)
+RP=$(realpath $PR)
+
+cd "$PR" || exit 1
+
+CONFIGS="khadas-vim khadas-vim2 khadas-vim3 khadas-vim3l"
+
+for D in $CONFIGS ; do
+    echo $D
+    export DEF_CONFIG="${D}_defconfig"
+
+    ls -l1 
+
+    . ./make.inc
+
+    ./make re || {
+	echo "[w] last fail $?"
+	exit 1
+    }
+
+    ./make_aml_burn_images $BOARD
+
+    echo "[i] $BOARD DONE"
+
+done
+
+./make_krescue_images
+
+./make_post

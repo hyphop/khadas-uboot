@@ -86,7 +86,9 @@ post_make_target() {
 		cp -r "$PKGS_DIR/$PKG_NAME/fip/$KHADAS_BOARD" "$BUILD/$PKG_NAME-$PKG_VERSION/fip"
 		cp u-boot.bin fip/bl33.bin
 		case "$KHADAS_BOARD" in
+
 			VIM1|VIM2)
+
 			fip/blx_fix.sh fip/bl30.bin fip/zero_tmp fip/bl30_zero.bin fip/bl301.bin fip/bl301_zero.bin fip/bl30_new.bin bl30
 			python fip/acs_tool.pyc fip/bl2.bin fip/bl2_acs.bin fip/acs.bin 0
 			fip/blx_fix.sh fip/bl2_acs.bin fip/zero_tmp fip/bl2_zero.bin fip/bl21.bin fip/bl21_zero.bin fip/bl2_new.bin bl2
@@ -96,13 +98,14 @@ post_make_target() {
 			fip/aml_encrypt_gxl --bl2sig --input fip/bl2_new.bin --output fip/bl2.n.bin.sig
 			fip/aml_encrypt_gxl --bootmk --output fip/u-boot.bin --bl2 fip/bl2.n.bin.sig --bl30 fip/bl30_new.bin.enc --bl31 fip/bl31.img.enc --bl33 fip/bl33.bin.enc
 			;;
-			VIM3)
-			aml_encrypt=aml_encrypt_g12b
-			;;
-			VIM3L)
-			aml_encrypt=aml_encrypt_g12a
-			;;
+
 			VIM3*)
+
+			[ "$KHADAS_BOARD" = "VIM3" ] && \
+			aml_encrypt=aml_encrypt_g12b
+			[ "$KHADAS_BOARD" = "VIM3L" ] && \
+			aml_encrypt=aml_encrypt_g12a
+
 			fip/blx_fix.sh fip/bl30.bin fip/zero_tmp fip/bl30_zero.bin fip/bl301.bin fip/bl301_zero.bin fip/bl30_new.bin bl30
 			fip/blx_fix.sh fip/bl2.bin fip/zero_tmp fip/bl2_zero.bin fip/acs.bin fip/bl21_zero.bin fip/bl2_new.bin bl2
 			fip/${aml_encrypt} --bl30sig --input fip/bl30_new.bin --output fip/bl30_new.bin.g12a.enc --level v3
@@ -132,8 +135,8 @@ post_make_target() {
 		Rockchip)
 
 BS=.
-UBOOT_SD_MMC=u-boot.mmc.bin
-UBOOT_SD_MMC0=u-boot.mmc.0.bin
+UBOOT_SD_MMC=u-boot.mmc.64.bin
+UBOOT_SD_MMC0=u-boot.mmc.bin
 UBOOT_SPI=u-boot.spi.bin
 
 [ -d "$BS/tpl" ] && {
