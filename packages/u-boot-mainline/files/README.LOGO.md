@@ -2,6 +2,11 @@
 
 uboot LOGO, displayed after uboot activate display
 
+## LOGO PATHS
+
+    + MMC|SD /splash.bmp                    (1st partition)
+    + MMC|SD /usr/share/fenix/logo/logo.bmp (2nd partition)
+
 ## INFO
 
     file splash.*
@@ -11,7 +16,6 @@ uboot LOGO, displayed after uboot activate display
 raw bmp and gzipped bmp must have same name splash.bmp or logo.bmp
 and same .bmp extension (without .gz)
 
-
 ## PACK
 
     gzip -9c splash.raw.bmp > splash.bmp
@@ -20,12 +24,6 @@ and same .bmp extension (without .gz)
 
     file splash.bmp | grep gzip \
     gzip -dc splash.bmp > splash.raw.bmp
-
-
-## LOGO PATHS
-
-    + MMC|SD /splash.bmp                    (1st partition)
-    + MMC|SD /usr/share/fenix/logo/logo.bmp (2nd partition)
 
 ## CUSTOMIZE
 
