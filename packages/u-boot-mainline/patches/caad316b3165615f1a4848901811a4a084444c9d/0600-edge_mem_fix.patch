@@ -1,0 +1,51 @@
+From 2edd9c888223de598b03758a1eccfa5ce1912c6d Mon Sep 17 00:00:00 2001
+From: hyphop <art@khadas.com>
+Date: Sat, 23 May 2020 17:32:35 +0900
+Subject: [PATCH] edge_mem_fix
+
+---
+ common/bootm.c                  | 2 +-
+ include/configs/rk3399_common.h | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/common/bootm.c b/common/bootm.c
+index db4362a6..4672a52c 100644
+--- a/common/bootm.c
++++ b/common/bootm.c
+@@ -319,7 +319,7 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size, int ret)
+ 		return BOOTM_ERR_UNIMPLEMENTED;
+ 
+ 	if (uncomp_size >= CONFIG_SYS_BOOTM_LEN)
+-		printf("Image too large: increase CONFIG_SYS_BOOTM_LEN\n");
++		printf("Image too large: increase CONFIG_SYS_BOOTM_LEN %lu %u\n", uncomp_size, CONFIG_SYS_BOOTM_LEN);
+ 	else
+ 		printf("%s: uncompress error %d\n", name, ret);
+ 
+diff --git a/include/configs/rk3399_common.h b/include/configs/rk3399_common.h
+index 9d6d4ab8..d9f88ca0 100644
+--- a/include/configs/rk3399_common.h
++++ b/include/configs/rk3399_common.h
+@@ -32,7 +32,7 @@
+ #define CONFIG_SPL_BSS_MAX_SIZE         0x10000
+ #endif
+ 
+-#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
++#define CONFIG_SYS_BOOTM_LEN	(64 << 21)	/* 128M */
+ 
+ /* MMC/SD IP block */
+ #define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
+@@ -49,9 +49,9 @@
+ #define ENV_MEM_LAYOUT_SETTINGS \
+ 	"scriptaddr=0x00500000\0" \
+ 	"pxefile_addr_r=0x00600000\0" \
+-	"fdt_addr_r=0x01f00000\0" \
++	"fdt_addr_r=0x00f00000\0" \
+ 	"kernel_addr_r=0x02080000\0" \
+-	"ramdisk_addr_r=0x06000000\0"
++	"ramdisk_addr_r=0x20000000\0"
+ 
+ #ifndef ROCKCHIP_DEVICE_SETTINGS
+ #define ROCKCHIP_DEVICE_SETTINGS
+-- 
+2.17.1
+

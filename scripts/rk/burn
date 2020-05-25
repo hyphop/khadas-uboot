@@ -41,6 +41,8 @@ case $A in
     dd if=/dev/zero bs=1M count=16 of=$RK_ZERO 1>/dev/null 2>/dev/null
     $RKP/rkdeveloptool wl 64 $RK_ZERO || echo "[w] oops clear"
     ;;
+    loader_legacy)
+    ;;
     loader)
     echo "[i] write LOADER"
 
