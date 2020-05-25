@@ -1,5 +1,9 @@
 #!/bin/sh
 
+## hyphop ##
+
+#= LOGO dtb injector template
+
 [ "$LOGO_PATH" ] || \
     LOGO_PATH=/tmp/khadas-uboot-build/splash.bmp.gz
 
