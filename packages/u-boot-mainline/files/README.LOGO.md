@@ -1,27 +1,26 @@
-# Splash / LOGO
+# uboot LOGO / SPLASH
 
-uboot embed splash / logo, displayed after uboot can activate display
+uboot LOGO, displayed after uboot activate display
 
 ## INFO
 
-bmp logo file can be compressed by gzip
-
     file splash.*
-    splash.bmp:    PC bitmap, Windows 3.x format, 32 bit per pixel (bgra - pixel_format)
-    splash.bmp.gz: gzip compressed data, was "splash.bmp"
+    splash.bmp       PC bitmap, Windows 3.x format, 32 bit per pixel (bgra - pixel_format)
+    splash.bmp.gz    gzip compressed data, was "splash.bmp"
+
+raw bmp and gzipped bmp must have same name splash.bmp or logo.bmp
+and same .bmp extension (without .gz)
+
 
 ## PACK
 
-    gzip -9c splash.bmp > splash.bmp.gz
+    gzip -9c splash.raw.bmp > splash.bmp
 
 ## UNPACK
 
-    gzip -dc splash.bmp.gz > splash.bmp
+    file splash.bmp | grep gzip \
+    gzip -dc splash.bmp > splash.raw.bmp
 
-## NOTE
-
-    raw bmp and gzipped bmp must have same name splash.bmp or logo.bmp
-    and same .bmp extension (without .gz)
 
 ## LOGO PATHS
 
