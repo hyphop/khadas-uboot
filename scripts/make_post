@@ -17,7 +17,7 @@ cd "$PR" || exit 1
 
 (
 cd $UBOOT_DIR2
-md5sum VIM* > list.md5sum
+md5sum *.bin > list.md5sum
 )
 
 ls -l1 
@@ -41,8 +41,8 @@ done
 
 echo "
     # write to sd / emmc - example
-    dd if=VIM?.u-boot.sd.bin of=/dev/mmcblk? conv=fsync bs=442 count=1
-    dd if=VIM?.u-boot.sd.bin of=/dev/mmcblk? conv=fsync bs=512 skip=1 seek=1
+    dd if=$s of=/dev/mmcblk? conv=fsync,notrunc bs=442 count=1
+    dd if=$s of=/dev/mmcblk? conv=fsync,notrunc bs=512 skip=1 seek=1
 
 !NOTE: same can be writed by 0 offset to sd / mmc ( cat VIM?.u-boot.sd.bin > /dev/mmcblk? ) 
 !NOTE: but partition table will be rewrited missed ( by 442 offset ) and need created it"
@@ -52,6 +52,30 @@ echo "
 "
 
 for s in VIM*spi.bin; do
+    echo "+ $s"
+done
+
+echo "
+!NOTE: write to spi flash by 0 offset
+
+## EDGE sd / mmc / emmc uboot
+"
+
+for s in *.64.bin; do
+    echo "+ $s"
+done
+
+echo "
+    # write to sd / emmc - example
+    dd if=$s of=/dev/mmcblk? conv=fsync,notrunc seek=64
+
+!NOTE: write to 64*512 bytes offset"
+
+echo "
+## EDGEx spi flash uboot
+"
+
+for s in EDGE*spi.bin; do
     echo "+ $s"
 done
 

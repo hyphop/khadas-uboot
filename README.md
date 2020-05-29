@@ -67,6 +67,10 @@ EDGE status
 
 https://github.com/hyphop/khadas-uboot/releases
 
+## README
+
+https://github.com/hyphop/khadas-uboot/releases/download/last/README.txt
+
 ## spi usage 
 
 for spi usage u can use this link https://github.com/hyphop/khadas-rescue for build full spi images

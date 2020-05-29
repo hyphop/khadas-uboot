@@ -223,12 +223,17 @@ case $VENDOR in
     echo "[i] $BOARD store"
     cp $BS/u-boot.spi* $UBOOT_DIR1
     cp $BS/u-boot.mmc* $UBOOT_DIR1
+    cp $BS/u-boot.mmc.64.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SD_MMC
+    cp $BS/u-boot.spi.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SPI
+
     ;;
 
     *)
     echo "[i] $BOARD store"
-    cp $BS/fip/u-boot.bin		$UBOOT_DIR1/$UBOOT_SPI
-    cp $BS/fip/u-boot.bin.sd.bin	$UBOOT_DIR1/$UBOOT_SD_MMC0
+    CMD cp $BS/fip/u-boot.bin		$UBOOT_DIR1/$UBOOT_SPI
+    CMD cp $BS/fip/u-boot.bin.sd.bin	$UBOOT_DIR1/$UBOOT_SD_MMC0
+    CMD cp $BS/fip/u-boot.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SPI
+    CMD cp $BS/fip/u-boot.bin.sd.bin	$UBOOT_DIR2/$BOARD.$UBOOT_SD_MMC0
 
     [ "" ] && {
     U="$UBOOT_DIR1/$BOARD.$UBOOT_SPI"
@@ -239,8 +244,6 @@ case $VENDOR in
     ln -sf "$BS/fip/u-boot.bin.sd.bin"	"$U"
     }
 
-    cp $BS/fip/u-boot.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SPI
-    cp $BS/fip/u-boot.bin.sd.bin	$UBOOT_DIR2/$BOARD.$UBOOT_SD_MMC0
 
     [ "$COMPRESS" ] && {
     for C in \

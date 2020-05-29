@@ -13,6 +13,9 @@ RP=$(realpath $PR)
 
 cd "$PR" || exit 1
 
+[ "$CONFIGS" ] || CONFIGS="$@"
+
+[ "$CONFIGS" ] || \
 CONFIGS="khadas-vim khadas-vim2 khadas-vim3 khadas-vim3l khadas-edge-v-rk3399"
 
 for D in $CONFIGS ; do
@@ -28,12 +31,14 @@ for D in $CONFIGS ; do
 	exit 1
     }
 
+    [ "$VENDOR" = "Amlogic" ] && \
     ./make_aml_burn_images $BOARD
 
     echo "[i] $BOARD DONE"
 
 done
 
+[ "$VENDOR" = "Amlogic" ] && \
 ./make_krescue_images
 
 ./make_post
