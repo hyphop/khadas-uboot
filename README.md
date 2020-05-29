@@ -78,6 +78,7 @@ for spi usage u can use this link https://github.com/hyphop/khadas-rescue for bu
 ## related projects
 
 + https://github.com/hyphop/khadas-rescue
++ https://github.com/hyphop/khadas-rescue-tools
 + https://github.com/hyphop/khadas-openwrt
 + https://github.com/hyphop/khadas-linux-kernel
 + https://github.com/khadas/fenix
