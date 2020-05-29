@@ -31,10 +31,10 @@ index 89a8a44b..b5cdf30a 100644
 +#define PREBOOT_LOAD_LOGO \
 +	"ll=0; test $boot_source = spi && sf probe && sf read $loadaddr 0x170000 0x10000 && ll=1; " \
 +	"test $ll = 0 && ll=1 && " \
-+	"load mmc 0 $loadaddr splash.bmp || " \
-+	"load mmc 0:2 $loadaddr /usr/share/fenix/logo/logo.bmp || " \
 +	"load mmc 1 $loadaddr splash.bmp || " \
 +	"load mmc 1:2 $loadaddr /usr/share/fenix/logo/logo.bmp || " \
++	"load mmc 0 $loadaddr splash.bmp || " \
++	"load mmc 0:2 $loadaddr /usr/share/fenix/logo/logo.bmp || " \
 +	"ll=0; " \
 +	"test $ll = 1 && bmp display $loadaddr m m || ll=0; " \
 +	"test $ll = 0 && fdt addr $fdtcontroladdr && fdt get addr logo /logo data && bmp display $logo m m; "

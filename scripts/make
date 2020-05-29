@@ -156,7 +156,11 @@ ${CROSS_COMPILE}gcc --version || FAIL gcc
 
 PKGS=u-boot-mainline
 
-[ "$ATF_BUILD" ] && PKGS="arm-trusted-firmware $PKGS"
+[ "$ATF_BUILD" = 1 ] && PKGS="arm-trusted-firmware $PKGS"
+[ "$ATF_BUILD" = RKBIN ] && { 
+rm -rf $BUILD/arm-trusted-firmware*
+PKGS="rkbin $PKGS"
+}
 
 [ -s $BUILD/def_config ] && {
 [ "$DEF_CONFIG" ] ||  . $BUILD/def_config

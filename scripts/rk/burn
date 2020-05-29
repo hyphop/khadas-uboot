@@ -39,7 +39,7 @@ case $A in
     ;;
     *clear)
     dd if=/dev/zero bs=1M count=16 of=$RK_ZERO 1>/dev/null 2>/dev/null
-    $RKP/rkdeveloptool wl 64 $RK_ZERO || echo "[w] oops clear"
+    $RKP/rkdeveloptool wl 0 $RK_ZERO || echo "[w] oops clear"
     ;;
     loader_legacy)
     ;;
