@@ -12,7 +12,7 @@ UP=/tmp/flash_boot.img
 RKP=$PD/../../../../utils/rk-flash-tool/tools
 
 #RK_BOOT=/tmp/khadas-uboot-build/u-boot-mainline/idbloader.img
-RK_BOOT=/tmp/u-boot.sd.mmc.bin
+RK_BOOT=/tmp/u-boot.mmc.64.bin
 RK_ZERO=/tmp/zero
 
 #LOOP=

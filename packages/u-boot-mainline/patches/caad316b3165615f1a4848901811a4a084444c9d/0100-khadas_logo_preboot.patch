@@ -125,8 +125,8 @@ index 87ffc7c9..13988b87 100644
 +	"ll=0; test $boot_source = spi && sf probe && sf read $loadaddr 0x170000 0x10000 && ll=1; " \
 +	"test $ll = 0 && ll=1 && " \
 +	"load mmc 1 $loadaddr splash.bmp || " \
-+	"load mmc 2 $loadaddr splash.bmp || " \
 +	"load mmc 1:2 $loadaddr /usr/share/fenix/logo/logo.bmp || " \
++	"load mmc 2 $loadaddr splash.bmp || " \
 +	"load mmc 2:2 $loadaddr /usr/share/fenix/logo/logo.bmp || " \
 +	"ll=0; " \
 +	"test $ll = 1 && bmp display $loadaddr m m || ll=0; " \

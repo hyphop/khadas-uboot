@@ -138,13 +138,14 @@ BS=.
 UBOOT_SD_MMC=u-boot.mmc.64.bin
 UBOOT_SD_MMC0=u-boot.mmc.bin
 UBOOT_SPI=u-boot.spi.bin
+UBOOT_PAYLOAD=0x40000
 
 [ -d "$BS/tpl" ] && {
 echo "[i] TPL+SPL SPI"
 $BS/tools/mkimage -n rk3399 -T rkspi -d $BS/tpl/u-boot-tpl-dtb.bin $UBOOT_SPI
 cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SPI
 ls -l1 $UBOOT_SPI
-truncate -s $((0x40000-0)) $UBOOT_SPI
+truncate -s $((UBOOT_PAYLOAD-0)) $UBOOT_SPI
 cat $BS/u-boot.itb >> $UBOOT_SPI
 gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
 ls -l1 $UBOOT_SPI*
@@ -154,7 +155,7 @@ ls -l1 $UBOOT_SPI*
 echo "[i] SPL SPI"
 $BS/tools/mkimage -n rk3399 -T rkspi -d $BS/spl/u-boot-spl-dtb.bin $UBOOT_SPI
 ls -l1 $UBOOT_SPI
-truncate -s $((0x40000-0)) $UBOOT_SPI
+truncate -s $((UBOOT_PAYLOAD-0)) $UBOOT_SPI
 cat $BS/u-boot.itb >> $UBOOT_SPI
 gzip -c9 $UBOOT_SPI > $UBOOT_SPI.gz
 ls -l1 $UBOOT_SPI*
@@ -165,7 +166,7 @@ echo "[i] TPL+SPL SD"
 $BS/tools/mkimage -n rk3399 -T rksd -d $BS/tpl/u-boot-tpl-dtb.bin  $UBOOT_SD_MMC || DIE
 ls -l1 $UBOOT_SD_MMC
 cat $BS/spl/u-boot-spl-dtb.bin >> $UBOOT_SD_MMC
-truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
+truncate -s $((UBOOT_PAYLOAD-64*512))  $UBOOT_SD_MMC
 cat $BS/u-boot.itb >> $UBOOT_SD_MMC
 gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
 dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0 1>/dev/null 2>/dev/null
@@ -178,7 +179,7 @@ ls -l1 $UBOOT_SD_MMC*
 echo "[i] SPL SD"
 $BS/tools/mkimage -n rk3399 -T rksd -d $BS/spl/u-boot-spl-dtb.bin  $UBOOT_SD_MMC || DIE
 ls -l1 $UBOOT_SD_MMC
-truncate -s $((0x40000-64*512))  $UBOOT_SD_MMC
+truncate -s $((UBOOT_PAYLOAD-64*512))  $UBOOT_SD_MMC
 cat $BS/u-boot.itb >> $UBOOT_SD_MMC
 gzip -c9 $UBOOT_SD_MMC > $UBOOT_SD_MMC.gz
 dd if=/dev/zero count=64 of=$UBOOT_SD_MMC0 1>/dev/null 2>/dev/null

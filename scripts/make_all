@@ -13,7 +13,7 @@ RP=$(realpath $PR)
 
 cd "$PR" || exit 1
 
-CONFIGS="khadas-vim khadas-vim2 khadas-vim3 khadas-vim3l"
+CONFIGS="khadas-vim khadas-vim2 khadas-vim3 khadas-vim3l khadas-edge-v-rk3399"
 
 for D in $CONFIGS ; do
     echo $D
