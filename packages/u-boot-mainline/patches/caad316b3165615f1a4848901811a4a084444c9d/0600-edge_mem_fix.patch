@@ -4,25 +4,8 @@ Date: Sat, 23 May 2020 17:32:35 +0900
 Subject: [PATCH] edge_mem_fix
 
 ---
- common/bootm.c                  | 2 +-
  include/configs/rk3399_common.h | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/common/bootm.c b/common/bootm.c
-index db4362a6..4672a52c 100644
---- a/common/bootm.c
-+++ b/common/bootm.c
-@@ -319,7 +319,7 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size, int ret)
- 		return BOOTM_ERR_UNIMPLEMENTED;
- 
- 	if (uncomp_size >= CONFIG_SYS_BOOTM_LEN)
--		printf("Image too large: increase CONFIG_SYS_BOOTM_LEN\n");
-+		printf("Image too large: increase CONFIG_SYS_BOOTM_LEN %lu %u\n", uncomp_size, CONFIG_SYS_BOOTM_LEN);
- 	else
- 		printf("%s: uncompress error %d\n", name, ret);
- 
-diff --git a/include/configs/rk3399_common.h b/include/configs/rk3399_common.h
-index 9d6d4ab8..d9f88ca0 100644
 --- a/include/configs/rk3399_common.h
 +++ b/include/configs/rk3399_common.h
 @@ -32,7 +32,7 @@
