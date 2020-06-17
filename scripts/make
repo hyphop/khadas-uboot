@@ -227,8 +227,10 @@ case $VENDOR in
     echo "[i] $BOARD store"
     cp $BS/u-boot.spi* $UBOOT_DIR1
     cp $BS/u-boot.mmc* $UBOOT_DIR1
+    cp $BS/u-boot.sd* $UBOOT_DIR1
     cp $BS/u-boot.mmc.64.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SD_MMC
     cp $BS/u-boot.spi.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SPI
+    cp $BS/u-boot.sd.bin		$UBOOT_DIR2/$BOARD.$UBOOT_SD_MMC0
 
     ;;
 

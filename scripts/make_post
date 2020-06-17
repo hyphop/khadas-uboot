@@ -62,23 +62,42 @@ echo "
 "
 
 for s in *.64.bin; do
+    [ -e "$s" ] && \
     echo "+ $s"
 done
 
+[ -e "$s" ] && \
 echo "
     # write to sd / emmc - example
     dd if=$s of=/dev/mmcblk? conv=fsync,notrunc seek=64
 
-!NOTE: write to 64*512 bytes offset"
+!NOTE: write to 64*512 bytes offset
+"
+
+for s in Edge*sd.bin ; do
+    [ -e "$s" ] && \
+    echo "+ $s"
+done
+
+    [ -e "$s" ] && \
+echo "
+    # write to sd / emmc - example
+    dd if=$s of=/dev/mmcblk? conv=fsync,notrunc skip=64 seek=64
+    # or just from begin and rewrite mbr
+    dd if=$s of=/dev/mmcblk? conv=fsync,notrunc
+
+!NOTE: write to 0 offset"
 
 echo "
 ## EDGEx spi flash uboot
 "
 
-for s in EDGE*spi.bin; do
+for s in Edge*spi.bin; do
+    [ -e "$s" ] && \
     echo "+ $s"
 done
 
+    [ -e "$s" ] && \
 echo "
 !NOTE: write to spi flash by 0 offset"
 

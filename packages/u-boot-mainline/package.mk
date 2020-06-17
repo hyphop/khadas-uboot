@@ -136,7 +136,7 @@ post_make_target() {
 
 BS=.
 UBOOT_SD_MMC=u-boot.mmc.64.bin
-UBOOT_SD_MMC0=u-boot.mmc.bin
+UBOOT_SD_MMC0=u-boot.sd.bin
 UBOOT_SPI=u-boot.spi.bin
 UBOOT_PAYLOAD=0x40000
 
