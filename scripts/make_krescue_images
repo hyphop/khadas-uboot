@@ -14,8 +14,7 @@ cd "$PR" || exit 1
 
 [ "$BOARDS" ] || BOARDS="$@"
 [ "$BOARDS" ] || \
-BOARDS="VIM1 VIM2 VIM3 VIM3L"
-
+BOARDS="VIM1 VIM2 VIM3 VIM3L Edge"
 
 for BOARD in $BOARDS ; do
 
@@ -31,10 +30,12 @@ export UBOOT_VIM1="$UBOOT_DIR2/VIM1.$UBOOT_SD_MMC0"
 export UBOOT_VIM2="$UBOOT_DIR2/VIM2.$UBOOT_SD_MMC0"
 export UBOOT_VIM3="$UBOOT_DIR2/VIM3.$UBOOT_SD_MMC0"
 export UBOOT_VIM3L="$UBOOT_DIR2/VIM3L.$UBOOT_SD_MMC0"
+export UBOOT_EDGE="$UBOOT_DIR2/Edge.$UBOOT_SD_MMC0"
 export UBOOT_VIM1_SPI="$UBOOT_DIR2/VIM1.$UBOOT_SPI"
 export UBOOT_VIM2_SPI="$UBOOT_DIR2/VIM2.$UBOOT_SPI"
 export UBOOT_VIM3_SPI="$UBOOT_DIR2/VIM3.$UBOOT_SPI"
 export UBOOT_VIM3L_SPI="$UBOOT_DIR2/VIM3L.$UBOOT_SPI"
+export UBOOT_EDGE_SPI="$UBOOT_DIR2/Edge.$UBOOT_SPI"
 
 ../../khadas-rescue-tools/projects/UBOOT.mainline.krescue/make && \
-    cp /tmp/VIMx.UBOOT.mainline.emmc.kresq $UBOOT_DIR2
+    cp /tmp/Khadas.UBOOT.mainline.emmc.kresq $UBOOT_DIR2
