@@ -2,11 +2,7 @@
 
 ## hyphop ##
 
-#= make all images 
-
-#khadas-edge-captain-rk3399
-#khadas-edge-rk3399
-#khadas-edge-v-rk3399
+#= make description
 
 PR=$(dirname $0)
 RP=$(realpath $PR)

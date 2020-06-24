@@ -27,7 +27,10 @@ OK(){
 }
 
     O_="$2"
+    [ "$O_" ] || O_=$(basename "$1")
     D_="$3"
+    [ "$D_" ] || D_="$DOWNLOADS"
+
     echo "[i] DOWNLOAD $1 => $O_ DIR $D_">&2
 
     T_=/tmp/dl.head

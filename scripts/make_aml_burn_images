@@ -4,7 +4,6 @@
 
 #= make aml-burn-images VIM1 VIM2 VIM3 VIM3L
 
-
 PR=$(dirname $0)
 RP=$(realpath $PR)
 
