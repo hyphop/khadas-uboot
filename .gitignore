@@ -1,10 +1,12 @@
 !.gitignore
-bin
-build
-work
-dl
+/bin
+/build
+/work
+/dl
 fip
-share
+/share
 *.bin
 *.elf
+/opt
+
 !README.md
