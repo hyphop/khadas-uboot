@@ -145,7 +145,7 @@ tar -xf"$(realpath "$DOWNLOADS/$FIPZ")"        -C"$BUILD" --one-top-level="$FIP"
 }
 
 export UBOOT_COMPILER_PATH=$(realpath "$BUILD/gcc")/bin
-export PATH="$EXTRA_PATH:$UBOOT_COMPILER_PATH:$PATH"
+export PATH="$(realpath "../opt/bin"):$EXTRA_PATH:$UBOOT_COMPILER_PATH:$PATH"
 export ARCH=arm64
 export CROSS_COMPILE=aarch64-none-linux-gnu-
 export UBOOT_COMPILER=$CROSS_COMPILE
