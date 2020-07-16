@@ -67,7 +67,22 @@ make_target() {
 	make_target_deps
 
 	make distclean
-	make -j${NR_JOBS} CROSS_COMPILE=${UBOOT_COMPILER} ${UBOOT_DEFCONFIG} all
+
+	make CROSS_COMPILE=${UBOOT_COMPILER} ${UBOOT_DEFCONFIG}
+
+echo '
+
+CONFIG_AUTOBOOT=y
+CONFIG_AUTOBOOT_KEYED=y
+CONFIG_AUTOBOOT_PROMPT="Hit SPACE in %d seconds to stop autoboot"
+# CONFIG_AUTOBOOT_ENCRYPTION is not set
+CONFIG_AUTOBOOT_DELAY_STR="2"
+CONFIG_AUTOBOOT_STOP_STR=" "
+# CONFIG_AUTOBOOT_KEYED_CTRLC is not set
+
+' >> .config
+
+	make -j${NR_JOBS} CROSS_COMPILE=${UBOOT_COMPILER} all
 
 }
 
